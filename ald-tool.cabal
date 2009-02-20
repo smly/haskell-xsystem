@@ -1,0 +1,22 @@
+Name:          aldtool
+Version:       0.1
+Homepage:      http://github.com/aldtool
+Synopsis:      some tools for system35
+Category:      Unclassified
+License:       BSD3
+License-file:  LICENSE
+Author:        Kohei Ozaki
+Maintainer:    Kohei Ozaki <i@smly.org>
+Cabal-Version: >= 1.6
+build-type:    Simple
+
+library
+  Buildable:    False
+  Exposed-Modules: System35.File.Ald
+                   System35.File.LittleEndian
+  Build-Depends:   unix, base >= 3, bytestring-mmap >= 0.2,
+                   bytestring >= 0.9
+
+executable aldtool
+  Main-is:       Aldtool.hs
+  Executable:    aldtool
