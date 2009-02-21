@@ -1,7 +1,6 @@
---module Aldtool (main) where
+module Main (main) where
 
 import System35.File.Ald (extractArchives, listFiles)
-
 import System.IO.Posix.MMap (unsafeMMapFile)
 import System.Environment (getArgs)
 

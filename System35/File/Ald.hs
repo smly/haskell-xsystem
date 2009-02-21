@@ -8,7 +8,6 @@ import System35.File.LittleEndian (get4BWord32, get3BWord32)
 
 import qualified Data.ByteString as S
 import qualified Data.ByteString.Char8 as SC
-import System.IO.Posix.MMap (unsafeMMapFile)
 import System.Environment (getArgs)
 import Data.Bits (shiftL)
 import Data.Word (Word32)
