@@ -11,6 +11,11 @@ h2. SYNOPSIS
 h3. aldtool
 
 writing...
+<pre>
+<code>
+./aldtool ./data/mamatoto_ga.ald ./data/mamatoto_gb.ald
+</code>
+</pre>
 
 h3. vsptool
 
