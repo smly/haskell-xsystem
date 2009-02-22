@@ -1,7 +1,7 @@
 Name:          sys35tools
 Version:       0.1
-Homepage:      http://github.com/sys35tools
-Synopsis:      some tools for system35
+Homepage:      http://github.com/smly/sys35tools
+Synopsis:      some tools for system35 written in haskell
 Category:      Unclassified
 License:       BSD3
 License-file:  LICENSE
