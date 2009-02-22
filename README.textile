@@ -1,26 +1,26 @@
-# sys35tools
+h1. sys35tools
 
 http://github.com/smly/sys35tools
 
-## DESCRIPTION
+h2. DESCRIPTION
 
 sys35tools provide some tools for system3.x (the engine AliceSoft uses).
 
-## SYNOPSIS
+h2. SYNOPSIS
 
-### aldtool
-
-writing...
-
-### vsptool
+h3. aldtool
 
 writing...
 
-### pmstool
+h3. vsptool
 
 writing...
 
-## REQUIREMENTS
+h3. pmstool
+
+writing...
+
+h2. REQUIREMENTS
 
 * bytestring-mmap >= 2.0
 * bytestring >= 0.9
