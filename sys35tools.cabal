@@ -1,6 +1,6 @@
-Name:          aldtool
+Name:          sys35tools
 Version:       0.1
-Homepage:      http://github.com/aldtool
+Homepage:      http://github.com/sys35tools
 Synopsis:      some tools for system35
 Category:      Unclassified
 License:       BSD3
@@ -11,12 +11,18 @@ Cabal-Version: >= 1.6
 build-type:    Simple
 
 library
-  Buildable:    False
   Exposed-Modules: System35.File.Ald
+                   System35.File.VSP
+                   System35.File.PMS8
                    System35.File.LittleEndian
-  Build-Depends:   unix, base >= 3, bytestring-mmap >= 0.2,
+  Build-Depends:   unix, base >= 3,
+                   bytestring-mmap >= 0.2,
                    bytestring >= 0.9
 
 executable aldtool
   Main-is:       Aldtool.hs
   Executable:    aldtool
+
+executable vsp2ppm
+  Main-is:       VSP2PPM.hs
+  Executable:    vsp2ppm

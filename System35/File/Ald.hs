@@ -1,7 +1,7 @@
 module System35.File.Ald (
   extractArchives, listFiles,
   getHeader, getMapping, getPointers,
-  getFileName, lookupData,
+  getFileName, lookupData, Header(..),
 ) where
 
 import System35.File.LittleEndian (get4BWord32, get3BWord32)
