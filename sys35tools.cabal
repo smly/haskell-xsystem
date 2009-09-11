@@ -1,28 +1,54 @@
 Name:          sys35tools
-Version:       0.1
+Version:       0.0.2
 Homepage:      http://github.com/smly/sys35tools
-Synopsis:      some tools for system35 written in haskell
+Synopsis:      System35 in Haskell
 Category:      Unclassified
 License:       BSD3
 License-file:  LICENSE
 Author:        Kohei Ozaki
-Maintainer:    Kohei Ozaki <i@smly.org>
+Maintainer:    Kohei Ozaki <eowner@gmail.com>
 Cabal-Version: >= 1.6
-build-type:    Simple
+build-type:    Custom
+flag test
+  description: Build test program.
+  default:     False
+
+executable test
+  hs-source-dirs: src, test
+  other-modules: System35.File.Ald,
+                 System35.File.Vsp
+  main-is:       VspDecodeTest.hs
+  if flag(test)
+    Build-Depends:
+        HUnit >= 1.2.2, test-framework-hunit >= 0.2.4,
+         test-framework >= 0.2.4
+  if !flag(test)
+    buildable:   False
 
 library
-  Exposed-Modules: System35.File.Ald
-                   System35.File.VSP
-                   System35.File.PMS8
-                   System35.File.LittleEndian
-  Build-Depends:   unix, base >= 3,
-                   bytestring-mmap >= 0.2,
-                   bytestring >= 0.9
+  hs-source-dirs: src
+  Exposed-Modules: System35.File.Ald,
+                   System35.File.Vsp
+--                   System35.File.PMS8
+executable vsp2ppm
+  other-modules:  System35.File.Vsp
+  hs-source-dirs: src
+  main-is:        Vsp2ppm.hs
+  executable:     vsp2ppm
 
 executable aldtool
-  Main-is:       Aldtool.hs
-  Executable:    aldtool
+  other-modules:  System35.File.Ald
+  hs-source-dirs: src
+  main-is:        Aldtool.hs
+  executable:     ald_extract
 
-executable vsp2ppm
-  Main-is:       VSP2PPM.hs
-  Executable:    vsp2ppm
+executable sys35hs
+  other-modules:  System35.File.Vsp
+  hs-source-dirs: src
+  main-is:        Display.hs
+  executable:     sys35hs_display
+
+  Build-Depends:   unix, base >= 3,
+                   bytestring-mmap >= 0.2,
+                   bytestring >= 0.9,
+                   SDL >= 0.5.5

@@ -10,8 +10,6 @@ h2. SYNOPSIS
 
 h3. aldtool
 
-writing...
-
 <pre>
 <code>
 $ ./aldtool -list ./data/mamatoto_ga.ald ./data/mamatoto_gb.ald
@@ -19,19 +17,13 @@ $ ./aldtool -unlink ./data/mamatoto_ga.ald ./data/mamatoto_gb.ald
 </code>
 </pre>
 
-h3. vsptool
-
-writing...
+h3. vsp2ppm
 
 <pre>
 <code>
-$ ./vsp2ppm ./data/CG_00001.VSP
+$ ./vsp2ppm ./data/CG_00001.VSP ./data/CG_00001.PPM
 </code>
 </pre>
-
-h3. pmstool
-
-writing...
 
 h2. REQUIREMENTS
 
