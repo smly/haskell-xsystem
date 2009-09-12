@@ -4,7 +4,7 @@ Sys35tools: system35 in haskell
 Description
 -----------
 
-sys35tools provides some tools for system3.x (the engine AliceSoft had used).
+Sys35tools provides some tools to manipulate a data of system3.x (the engine AliceSoft had used).
 
 Usage
 -----
