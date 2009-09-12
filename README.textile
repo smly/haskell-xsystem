@@ -4,16 +4,13 @@ http://github.com/smly/sys35tools
 
 h2. DESCRIPTION
 
-sys35tools provide some tools for system3.x (the engine AliceSoft uses).
-
-h2. SYNOPSIS
+sys35tools provides some tools for system3.x (the engine AliceSoft had used).
 
 h3. aldtool
 
 <pre>
 <code>
-$ ./aldtool -list ./data/mamatoto_ga.ald ./data/mamatoto_gb.ald
-$ ./aldtool -unlink ./data/mamatoto_ga.ald ./data/mamatoto_gb.ald
+$ ./aldtool ./data/mamatoto_ga.ald ./data/mamatoto_gb.ald
 </code>
 </pre>
 
@@ -22,6 +19,14 @@ h3. vsp2ppm
 <pre>
 <code>
 $ ./vsp2ppm ./data/CG_00001.VSP ./data/CG_00001.PPM
+</code>
+</pre>
+
+h2. TEST
+
+<pre>
+<code>
+$ cabal configure -ftest
 </code>
 </pre>
 
