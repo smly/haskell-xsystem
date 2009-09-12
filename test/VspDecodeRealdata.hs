@@ -1,7 +1,6 @@
 module VspDecodeRealdata (testToshin) where
 
 import System35.File.Vsp
-
 import Test.Framework (testGroup)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit

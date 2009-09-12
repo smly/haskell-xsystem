@@ -36,6 +36,7 @@ toPalletNum' ((a:as,b:bs,c:cs,d:ds):xs) = (a,b,c,d) : toPalletNum' ((as,bs,cs,ds
 toPalletNum :: Screen -> Pallet -> [RGB]
 toPalletNum = toRGB . toRGB' . toPalletNum'
 
+
 getHeader :: S.ByteString -> Header
 getHeader s = Header
                { x = x

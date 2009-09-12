@@ -1,13 +1,13 @@
+module Main (main) where
+import System35.File.Vsp
+--import VspDecodeRealdata
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit
-import System35.File.Vsp
 import qualified Data.ByteString as S
 import Data.Word (Word8, Word16)
 import Data.Bits ((.&.), shiftL, shiftR)
 import Data.List
-
-import qualified VspDecodeRealdata
 
 main = defaultMain tests
 
@@ -28,7 +28,7 @@ tests = [ {- testGroup for tokenize -}
           ]
         {- download toshin2, extract ald archive,
            and convert vsp image CG_0001.VSP -}
-        , VspDecodeRealdata.testToshin
+--        , testToshin
         ]
 
 type ImageSize = (Width, Height)
@@ -47,8 +47,14 @@ testReadRowdata0 = ret3 @?= testBlocks0
       rowdata = S.pack [0x01, 0x07, 0x03, 0x02, 0xc3, 0x00, 0x00]
 
       testBlocks0 :: [ByteBlock]
-      testBlocks0 = [ ByteBlock { code = 0x01, bytes = S.pack [0x01, 0x07, 0x03], len = 8 }
-                    , ByteBlock { code = 0x02, bytes = S.pack [0x02, 0xc3, 0x00, 0x00], len = 392 }
+      testBlocks0 = [ ByteBlock { code = 0x01
+                                , bytes = S.pack [0x01, 0x07, 0x03]
+                                , len = 8
+                                , sz = 3 }
+                    , ByteBlock { code = 0x02
+                                , bytes = S.pack [0x02, 0xc3, 0x00, 0x00]
+                                , len = 392
+                                , sz = 4 }
                     ]
 
 testReadRowdata1 = ret @?= expected
@@ -57,25 +63,67 @@ testReadRowdata1 = ret @?= expected
       rowdata = S.pack [0x01,0x07,0x03,  0x02,0xc3,0x00,0x00,
                         0x01,0x06,0x01,  0x02,0xc3,0x00,0x00,  0x07,0x00,
                         0x02,0xc7,0x00,0x00,  0x02,0xc7,0x00,0x00]
-      expected = [ ByteBlock { code = 0x01, bytes = S.pack [0x01,0x07,0x03], len = 8 }
-                 , ByteBlock { code = 0x02, bytes = S.pack [0x02,0xc3,0x00,0x00], len = 392 }
-                 , ByteBlock { code = 0x01, bytes = S.pack [0x01,0x06,0x01], len = 7 }
-                 , ByteBlock { code = 0x02, bytes = S.pack [0x02,0xc3,0x00,0x00], len = 392 }
-                 , ByteBlock { code = 0x07, bytes = S.pack [0x07,0x00], len = 1 }
-                 , ByteBlock { code = 0x02, bytes = S.pack [0x02, 0xc7,0x00,0x00], len = 400 }
-                 , ByteBlock { code = 0x02, bytes = S.pack [0x02, 0xc7,0x00,0x00], len = 400 }
+      expected = [ ByteBlock { code = 0x01
+                             , bytes = S.pack [0x01,0x07,0x03]
+                             , len = 8
+                             , sz = 3 }
+                 , ByteBlock { code = 0x02
+                             , bytes = S.pack [0x02,0xc3,0x00,0x00]
+                             , len = 392
+                             , sz = 4 }
+                 , ByteBlock { code = 0x01
+                             , bytes = S.pack [0x01,0x06,0x01]
+                             , len = 7
+                             , sz = 3 }
+                 , ByteBlock { code = 0x02
+                             , bytes = S.pack [0x02,0xc3,0x00,0x00]
+                             , len = 392
+                             , sz = 4 }
+                 , ByteBlock { code = 0x07
+                             , bytes = S.pack [0x07,0x00]
+                             , len = 1
+                             , sz = 2 }
+                 , ByteBlock { code = 0x02
+                             , bytes = S.pack [0x02, 0xc7,0x00,0x00]
+                             , len = 400
+                             , sz = 4 }
+                 , ByteBlock { code = 0x02
+                             , bytes = S.pack [0x02, 0xc7,0x00,0x00]
+                             , len = 400
+                             , sz = 4 }
                  ]
 
 testEvalBlock0 = ret @?= expected
     where
       ret = decode blockdata (8, 400)
-      blockdata = [ ByteBlock { code = 0x01, bytes = S.pack [0x01,0x07,0x03], len = 8 }
-                  , ByteBlock { code = 0x02, bytes = S.pack [0x02,0xc3,0x00,0x00], len = 392 }
-                  , ByteBlock { code = 0x01, bytes = S.pack [0x01,0x06,0x01], len = 7 }
-                  , ByteBlock { code = 0x02, bytes = S.pack [0x02,0xc3,0x00,0x00], len = 392 }
-                  , ByteBlock { code = 0x07, bytes = S.pack [0x07,0x00], len = 1 }
-                  , ByteBlock { code = 0x02, bytes = S.pack [0x02, 0xc7,0x00,0x00], len = 400 }
-                  , ByteBlock { code = 0x02, bytes = S.pack [0x02, 0xc7,0x00,0x00], len = 400 }
+      blockdata = [ ByteBlock { code = 0x01
+                              , bytes = S.pack [0x01,0x07,0x03]
+                              , len = 8
+                              , sz = 3 }
+                  , ByteBlock { code = 0x02
+                              , bytes = S.pack [0x02,0xc3,0x00,0x00]
+                              , len = 392
+                              , sz = 4 }
+                  , ByteBlock { code = 0x01
+                              , bytes = S.pack [0x01,0x06,0x01]
+                              , len = 7
+                              , sz = 3 }
+                  , ByteBlock { code = 0x02
+                              , bytes = S.pack [0x02,0xc3,0x00,0x00]
+                              , len = 392
+                              , sz = 4 }
+                  , ByteBlock { code = 0x07
+                              , bytes = S.pack [0x07,0x00]
+                              , len = 1
+                              , sz = 2 }
+                  , ByteBlock { code = 0x02
+                              , bytes = S.pack [0x02, 0xc7,0x00,0x00]
+                              , len = 400
+                              , sz = 4 }
+                  , ByteBlock { code = 0x02
+                              , bytes = S.pack [0x02, 0xc7,0x00,0x00]
+                              , len = 400
+                              , sz = 4 }
                   ]
 
       expected :: Screen
@@ -170,14 +218,38 @@ testRealdata0 = convertion
 test0 = assertEqual "test for 0x00 flag" testExpectedScreen0 testOutput0
     where
       testBlocks0 :: [ByteBlock]
-      testBlocks0 = [ ByteBlock { code = 0x01, bytes = S.pack [0x01, 0x10, 0x01], len = 16 }
-                    , ByteBlock { code = 0x01, bytes = S.pack [0x01, 0x10, 0x02], len = 16 }
-                    , ByteBlock { code = 0x01, bytes = S.pack [0x01, 0x10, 0x03], len = 16 }
-                    , ByteBlock { code = 0x01, bytes = S.pack [0x01, 0x10, 0x04], len = 16 }
-                    , ByteBlock { code = 0x00, bytes = S.pack [0x00, 0x10], len = 16 }
-                    , ByteBlock { code = 0x00, bytes = S.pack [0x00, 0x10], len = 16 }
-                    , ByteBlock { code = 0x00, bytes = S.pack [0x00, 0x10], len = 16 }
-                    , ByteBlock { code = 0x00, bytes = S.pack [0x00, 0x10], len = 16 } ]
+      testBlocks0 = [ ByteBlock { code = 0x01
+                                , bytes = S.pack [0x01, 0x10, 0x01]
+                                , len = 16
+                                , sz = 3 }
+                    , ByteBlock { code = 0x01
+                                , bytes = S.pack [0x01, 0x10, 0x02]
+                                , len = 16
+                                , sz = 3 }
+                    , ByteBlock { code = 0x01
+                                , bytes = S.pack [0x01, 0x10, 0x03]
+                                , len = 16
+                                , sz = 3 }
+                    , ByteBlock { code = 0x01
+                                , bytes = S.pack [0x01, 0x10, 0x04]
+                                , len = 16
+                                , sz = 3 }
+                    , ByteBlock { code = 0x00
+                                , bytes = S.pack [0x00, 0x10]
+                                , len = 16
+                                , sz = 3 }
+                    , ByteBlock { code = 0x00
+                                , bytes = S.pack [0x00, 0x10]
+                                , len = 16
+                                , sz = 2 }
+                    , ByteBlock { code = 0x00
+                                , bytes = S.pack [0x00, 0x10]
+                                , len = 16
+                                , sz = 2 }
+                    , ByteBlock { code = 0x00
+                                , bytes = S.pack [0x00, 0x10]
+                                , len = 16
+                                , sz = 2 } ]
 
       testOutput0 :: Screen
       testOutput0 = decode testBlocks0 testSize
@@ -196,7 +268,10 @@ test0 = assertEqual "test for 0x00 flag" testExpectedScreen0 testOutput0
 test1 = assertEqual "test for 0x01 flag" testOutput1 testExpectedScreen1
     where
       testBlocks1 :: [ByteBlock]
-      testBlocks1 = [ByteBlock { code = 0x01, bytes = S.pack [0x01, 0x08, 0x0a], len = 8 }]
+      testBlocks1 = [ByteBlock { code = 0x01
+                               , bytes = S.pack [0x01, 0x08, 0x0a]
+                               , len = 8
+                               , sz = 3 }]
 
       testOutput1 :: Screen
       testOutput1 = decode testBlocks1 (8, 16)
@@ -208,7 +283,10 @@ test1 = assertEqual "test for 0x01 flag" testOutput1 testExpectedScreen1
 test2 = assertEqual "test for 0x02 flag" testOutput2 testExpectedScreen2
     where
       testBlocks2 :: [ByteBlock]
-      testBlocks2 = [ByteBlock { code = 0x02, bytes = S.pack [0x02, 0x03, 0xff, 0xfa], len = 3*2 }]
+      testBlocks2 = [ByteBlock { code = 0x02
+                               , bytes = S.pack [0x02, 0x03, 0xff, 0xfa]
+                               , len = 3*2
+                               , sz = 4 }]
 
       testOutput2 :: Screen
       testOutput2 = decode testBlocks2 (8, 16)

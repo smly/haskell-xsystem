@@ -1,0 +1,9 @@
+module System35.File.Vsp (
+  module System35.File.Vsp.Base,
+  module System35.File.Vsp.Pixel,
+  module System35.File.Vsp.Decode,
+) where
+
+import System35.File.Vsp.Base
+import System35.File.Vsp.Pixel
+import System35.File.Vsp.Decode

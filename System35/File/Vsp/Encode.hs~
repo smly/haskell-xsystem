@@ -1,0 +1,194 @@
+module System35.File.Vsp.Encode (
+  test,
+) where
+
+import System35.File.Vsp.Base
+import System35.File.Vsp.Pixel
+import qualified Data.ByteString as S
+import Data.List (group)
+import Data.Word
+
+repeat1 k x = take k (repeat x) -- for 0x01
+repeat2 k (x1,x2) = concat $ take k (repeat [x1,x2]) -- for 0x02
+
+blockdata = [ ByteBlock { code = 0x01
+                        , bytes = S.pack [0x01,0x07,0x03]
+                        , len = 8
+                        , sz = 3 }
+            , ByteBlock { code = 0x02
+                        , bytes = S.pack [0x02,0xc3,0x00,0x00]
+                        , len = 392
+                        , sz = 4 }
+            , ByteBlock { code = 0x01
+                        , bytes = S.pack [0x01,0x06,0x01]
+                        , len = 7
+                        , sz = 3 }
+            , ByteBlock { code = 0x02
+                        , bytes = S.pack [0x02,0xc3,0x00,0x00]
+                        , len = 392
+                        , sz = 4 }
+            , ByteBlock { code = 0x07
+                        , bytes = S.pack [0x07,0x00]
+                        , len = 1
+                        , sz = 2 }
+            , ByteBlock { code = 0x02
+                        , bytes = S.pack [0x02, 0xc7,0x00,0x00]
+                        , len = 400
+                        , sz = 4 }
+            , ByteBlock { code = 0x02
+                        , bytes = S.pack [0x02, 0xc7,0x00,0x00]
+                        , len = 400
+                        , sz = 4 }
+            ]
+
+expected :: Screen
+expected = [ ( concat [repeat1 8 0x03, repeat2 196 (0x00,0x00)]
+             , concat [repeat1 7 0x01, repeat2 196 (0x00,0x00), [0x00]]
+             , concat [repeat2 200 (0x00,0x00)]
+             , concat [repeat2 200 (0x00,0x00)] ) ]
+
+-- [red plain, g, b, i, red plain, g, b, i, ...]
+-- list length = 4 * (width / 8)
+extractScreen :: Screen -> [Line]
+extractScreen = undefined
+
+encode :: [Line] -> [ByteBlock]
+encode = undefined
+
+type Dict = (Line, Line)
+data PlainType = B | R | G | I
+
+encodeLine :: Line -> Line -> [ByteBlock]
+encodeLine prev curr = undefined
+
+encodePlainLine :: Line -> Dict -> [ByteBlock]
+encodePlainLine (pl0,pl1,pl2,pl3) (prev,curr) = concat $ [blocks0,blocks1,blocks2,blocks3]
+    where
+      blocks0 = encodePlainLineOne pl0 0 B (prev,([], [], [], []))
+      blocks1 = encodePlainLineOne pl1 0 R (prev,(pl0,[], [], []))
+      blocks2 = encodePlainLineOne pl2 0 G (prev,(pl0,pl1,[], []))
+      blocks3 = encodePlainLineOne pl3 0 I (prev,(pl0,pl1,pl2,[]))
+
+encodePlainLineOne :: PlainLine -> Int -> PlainType -> Dict -> [ByteBlock]
+encodePlainLineOne pl y ptype dict
+    | length pl == y = []
+    | otherwise      = block : encodePlainLineOne pl (y+len block) ptype dict
+    where block = takeBestBlock pl y ptype dict
+-- testimage: 16x4
+test = encodePlainLine testline initDict
+initDict :: Dict
+initDict = (([],[],[],[]),([],[],[],[]))
+testscreen :: Screen
+testscreen = [([0,0,0,0],[0,0,0,0],[1,0,0,0],[0,0,0,0]),([0,0,0,0],[0,0,0,0],[1,0,0,0],[0,0,0,0])]
+testline :: Line
+testline = ([0,0,0,0],[0,0,0,0],[1,0,0,0],[0,0,0,0])
+testline2 :: Line
+testline2 = ([1,0,0,0],[1,1,1,1],[1,0,0,0],[0,0,0,0])
+testpl :: [Word8]
+testpl = [0x00,0x00,0x00,0x00]
+
+takeBestBlock :: PlainLine -> Int -> PlainType -> Dict -> ByteBlock
+takeBestBlock pl y R ((r,_,_,_),curr) = selectBestBlock pl y r curr
+takeBestBlock pl y G ((_,g,_,_),curr) = selectBestBlock pl y g curr
+takeBestBlock pl y B ((_,_,b,_),curr) = selectBestBlock pl y b curr
+takeBestBlock pl y I ((_,_,_,i),curr) = selectBestBlock pl y i curr
+
+-- curr (r,g,b,_) and masked (r,g,b,_)
+data DictType = Prev | CurrR | CurrB | CurrG
+
+-- selectBestBlock testpl 0 testline
+selectBestBlock :: PlainLine -> Int -> PlainLine -> (PlainLine,PlainLine,PlainLine,PlainLine) -> ByteBlock
+selectBestBlock pl y prev (cb,cr,cg,ci) = maximum [ buildBlock pl y prev Prev  -- 0x00
+                                               , buildRunBlock pl y         -- 0x01
+                                               , buildDoubleRunBlock pl y   -- 0x02
+                                               , buildBlock pl y cb CurrB -- 0x03
+                                               , buildBlock pl y cr CurrR -- 0x04
+                                               , buildBlock pl y cg CurrG -- 0x05
+                                                 -- add masked plain
+                                               , buildDirectBlock pl y    -- 0x07, 0x08~0xff
+                                               ] -- ignore mask now
+
+buildDirectBlock :: PlainLine -> Int -> ByteBlock
+buildDirectBlock pl y
+    | target > 0x07 = ByteBlock { code = target
+                                , bytes = S.pack [target]
+                                , len = 2
+                                , sz = 1 }
+    | otherwise     = ByteBlock { code = 0x07
+                                , bytes = S.pack [0x07, target]
+                                , len = 2
+                                , sz = 2 }
+    where
+      target = head pl
+
+buildRunBlock :: PlainLine -> Int -> ByteBlock
+buildRunBlock pl y = runLength target (head target)
+    where
+      target = drop y pl
+      runLength :: PlainLine -> Word8 -> ByteBlock
+      runLength (p:ps) w
+                   | p == w    = ByteBlock { code = 0x01
+                                           , bytes = S.pack (take l (repeat w))
+                                           , len = l
+                                           , sz = 3 }
+                   | otherwise = ByteBlock { code = 0x01
+                                           , bytes = S.empty
+                                           , len = -1
+                                           , sz = 3 }  --dummy
+          where l = (length . head . group) pl
+
+buildDoubleRunBlock :: PlainLine -> Int -> ByteBlock
+buildDoubleRunBlock pl y
+    | length target >= 2 = runLength target pat
+    | otherwise          = ByteBlock { code = 0x02
+                                     , bytes = S.empty
+                                     , len = -1
+                                     , sz = 4 } -- dummy
+    where
+      target = drop y pl
+      pat    = (\(x:y:z) -> (x,y)) target
+      runLength :: PlainLine -> (Word8,Word8) -> ByteBlock
+      runLength (p0:p1:px) (w0,w1)
+          | p0==w0 && p1==w1 = ByteBlock { code  = 0x02
+                                         , bytes = (S.pack . (take l) . concat . repeat) [w0,w1]
+                                         , len   = l
+                                         , sz    = 4 } -- dummy
+          | otherwise        = ByteBlock { code  = 0x02
+                                         , bytes = S.empty
+                                         , len   = -1
+                                         , sz    = 4 } -- dummy
+          where l = (length . head . group . resizeDouble) pl
+                resizeDouble :: PlainLine -> [[Word8]]
+                resizeDouble []       = []
+                resizeDouble [x]      = []
+                resizeDouble (x:y:xs) = [x,y] : resizeDouble xs
+
+buildBlock :: PlainLine -> Int -> PlainLine -> DictType -> ByteBlock
+buildBlock pl y cr dtype = case dtype of
+                             Prev  -> ByteBlock { code  = 0x00
+                                                , bytes = S.pack matchbytes
+                                                , len   = matchlen
+                                                , sz    = 2 }
+                             CurrR -> ByteBlock { code  = 0x03
+                                                , bytes = S.pack matchbytes
+                                                , len   = matchlen
+                                                , sz    = 2 }
+                             CurrG -> ByteBlock { code  = 0x04
+                                                , bytes = S.pack matchbytes
+                                                , len   = matchlen
+                                                , sz    = 2 }
+                             CurrB -> ByteBlock { code  = 0x05
+                                                , bytes = S.pack matchbytes
+                                                , len   = matchlen
+                                                , sz    = 2 }
+    where (matchlen, matchbytes) = matchLength (drop y pl) (drop y cr)
+
+matchLength :: (Eq a) => [a] -> [a] -> (Int, [a])
+matchLength prev curr = (len, take len prev)
+    where len = match prev curr
+          match :: (Eq a) => [a] -> [a] -> Int
+          match [] _ = 0
+          match _ [] = 0
+          match (x:xs) (y:ys)
+              | x == y    = 1 + (match xs ys)
+              | otherwise = 0

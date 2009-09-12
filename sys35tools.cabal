@@ -14,7 +14,7 @@ flag test
   default:     False
 
 executable test
-  hs-source-dirs: src, test
+  hs-source-dirs: test, .
   other-modules: System35.File.Ald,
                  System35.File.Vsp
   main-is:       VspDecodeTest.hs
@@ -26,25 +26,25 @@ executable test
     buildable:   False
 
 library
-  hs-source-dirs: src
+--  hs-source-dirs: src (not good for haskell-mode)
   Exposed-Modules: System35.File.Ald,
                    System35.File.Vsp
 --                   System35.File.PMS8
 executable vsp2ppm
   other-modules:  System35.File.Vsp
-  hs-source-dirs: src
+  hs-source-dirs: src, .
   main-is:        Vsp2ppm.hs
   executable:     vsp2ppm
 
 executable aldtool
   other-modules:  System35.File.Ald
-  hs-source-dirs: src
+  hs-source-dirs: src, .
   main-is:        Aldtool.hs
   executable:     ald_extract
 
 executable sys35hs
   other-modules:  System35.File.Vsp
-  hs-source-dirs: src
+  hs-source-dirs: src, .
   main-is:        Display.hs
   executable:     sys35hs_display
 

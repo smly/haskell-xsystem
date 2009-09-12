@@ -1,7 +1,5 @@
-module System35.File.Vsp (
-  module System35.File.Vsp.Base,
-  module System35.File.Vsp.Pixel,
-  convert, decode, tokenize, getImage,
+module System35.File.Vsp.Decode (
+  decode, convert, tokenize, getImage,
 ) where
 
 import System35.File.Vsp.Base
