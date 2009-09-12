@@ -6,45 +6,6 @@ import qualified Data.ByteString as S
 import Data.List (group)
 import Data.Word
 
-repeat1 k x = take k (repeat x) -- for 0x01
-repeat2 k (x1,x2) = concat $ take k (repeat [x1,x2]) -- for 0x02
-
-blockdata = [ ByteBlock { code = 0x01
-                        , bytes = S.pack [0x01,0x07,0x03]
-                        , len = 8
-                        , sz = 3 }
-            , ByteBlock { code = 0x02
-                        , bytes = S.pack [0x02,0xc3,0x00,0x00]
-                        , len = 392
-                        , sz = 4 }
-            , ByteBlock { code = 0x01
-                        , bytes = S.pack [0x01,0x06,0x01]
-                        , len = 7
-                        , sz = 3 }
-            , ByteBlock { code = 0x02
-                        , bytes = S.pack [0x02,0xc3,0x00,0x00]
-                        , len = 392
-                        , sz = 4 }
-            , ByteBlock { code = 0x07
-                        , bytes = S.pack [0x07,0x00]
-                        , len = 1
-                        , sz = 2 }
-            , ByteBlock { code = 0x02
-                        , bytes = S.pack [0x02, 0xc7,0x00,0x00]
-                        , len = 400
-                        , sz = 4 }
-            , ByteBlock { code = 0x02
-                        , bytes = S.pack [0x02, 0xc7,0x00,0x00]
-                        , len = 400
-                        , sz = 4 }
-            ]
-
-expected :: Screen
-expected = [ ( concat [repeat1 8 0x03, repeat2 196 (0x00,0x00)]
-             , concat [repeat1 7 0x01, repeat2 196 (0x00,0x00), [0x00]]
-             , concat [repeat2 200 (0x00,0x00)]
-             , concat [repeat2 200 (0x00,0x00)] ) ]
-
 -- [red plain, g, b, i, red plain, g, b, i, ...]
 -- list length = 4 * (width / 8)
 encode :: Screen -> [ByteBlock]
@@ -71,17 +32,6 @@ encodePlainLineOne pl y ptype dict
     | otherwise      = block : encodePlainLineOne pl (y+len block) ptype dict
     where block = takeBestBlock pl y ptype dict
 -- testimage: 16x4
-test = encodeLine testline initDict
-initDict :: Dict
-initDict = (([],[],[],[]),([],[],[],[]))
-testscreen :: Screen
-testscreen = [([0,0,0,0],[0,0,0,0],[1,0,0,0],[0,0,0,0]),([0,0,0,0],[0,0,0,0],[1,0,0,0],[0,0,0,0])]
-testline :: Line
-testline = ([0,0,0,0],[0,0,0,0],[1,0,0,0],[0,0,0,0])
-testline2 :: Line
-testline2 = ([1,0,0,0],[1,1,1,1],[1,0,0,0],[0,0,0,0])
-testpl :: [Word8]
-testpl = [0x00,0x00,0x00,0x00]
 
 takeBestBlock :: PlainLine -> Int -> PlainType -> Dict -> ByteBlock
 takeBestBlock pl y B ((b,_,_,_),curr) = selectBestBlock pl y b curr
@@ -106,16 +56,15 @@ selectBestBlock pl y prev (cb,cr,cg,ci) = maximum [ buildBlock pl y prev Prev  -
 
 buildDirectBlock :: PlainLine -> Int -> ByteBlock
 buildDirectBlock pl y
-    | target > 0x07 = ByteBlock { code = target
-                                , bytes = S.pack [target]
-                                , len = 1
-                                , sz = 1 }
-    | otherwise     = ByteBlock { code = 0x07
-                                , bytes = S.pack [0x07, target]
-                                , len = 1
-                                , sz = 2 }
-    where
-      target = head pl
+    | target > 0x07 = mkToken target (S.pack [target]) 1 1
+    | otherwise     = mkToken 0x07 (S.pack [0x07, target]) 1 2
+    where target = head pl
+
+type Flag = Word8
+type ByteLength = Int
+type TokenSize  = Int
+mkToken :: Flag -> S.ByteString -> ByteLength -> TokenSize -> ByteBlock
+mkToken flag dat l tokensz = ByteBlock { code = flag, bytes = dat, len = l, sz = tokensz }
 
 buildRunBlock :: PlainLine -> Int -> ByteBlock
 buildRunBlock pl y = runLength target (head target)

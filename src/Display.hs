@@ -4,6 +4,7 @@ import System35.File.Vsp
 import Control.Concurrent (threadDelay)
 import Graphics.UI.SDL as SDL
 import System.IO.Posix.MMap (unsafeMMapFile)
+import System.Environment (getArgs)
 
 loadVspImage :: Surface -> (Int, Int) -> String -> IO Bool
 loadVspImage surf (x0,y0) vsp =
@@ -36,21 +37,23 @@ setPixel surf x y c =
 
 main :: IO ()
 main = do
+  imagefiles <- getArgs
   SDL.init [InitVideo]
   setVideoMode wndWidth wndHeight wndDepth []
   setCaption wndTitle ""
   surf <- getVideoSurface
   back <- createRGBSurface [] wndWidth wndHeight wndDepth 0 0 0 0
-  loadVspImage back (0,0) imagefile1
-  loadVspImage back (40,0) imagefile2
+  loadVspImage back (0,0) (head imagefiles)
+--  loadVspImage back (0,0) imagefile1
+--  loadVspImage back (40,0) imagefile2
   blitSurface back Nothing surf Nothing
   SDL.flip surf
   quitHandler
       where
         (wndWidth, wndHeight, wndDepth) = (640, 400, 32)
         wndTitle = "System3.x in Haskell"
-        imagefile1 = "/home/smly/gitws/sys35tools/CG_0756.VSP"
-        imagefile2 = "/home/smly/gitws/sys35tools/CG_0697.VSP"
+        imagefile1 = "/home/smly/gitws/sys35tools/bag/CG_0070.VSP"
+        imagefile2 = "/home/smly/gitws/sys35tools/bag/CG_0697.VSP"
 
 quitHandler :: IO ()
 quitHandler =
