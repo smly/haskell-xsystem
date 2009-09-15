@@ -1,6 +1,7 @@
 module VspDecodeTest (tests) where
 
 import System35.File.Vsp
+import System35.Test.Base
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit
