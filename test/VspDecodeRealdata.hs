@@ -1,4 +1,4 @@
-module VspDecodeRealdata (testToshin) where
+module VspDecodeRealdata (tests) where
 
 import System35.File.Vsp
 import Test.Framework (testGroup)
@@ -11,7 +11,8 @@ import Data.List
 
 import Control.Monad (unless, foldM)
 
-testtest = TestCase $ assertBSEqual "test" expectedBin actualBin
+
+--testtest = TestCase $ assertBSEqual "test" expectedBin actualBin
 
 -- length check
 -- first 5 error parts
@@ -86,9 +87,10 @@ RGB {blue = 80, red = 208, green = 112}
 -}
 
 -- testGroup for ALD archive extraction and VSP image convertion
-testToshin = testGroup "Testing real data"
-             [ testCase "test for convertion (600x400)" testRealdata1
-             , testCase "test for convertion (560x298)" testRealdata2
+tests = [ testGroup "Testing real data"
+               [ testCase "test for convertion (600x400)" testRealdata1
+               , testCase "test for convertion (560x298)" testRealdata2
+               ]
              ]
 
 testRealdata1 = convertion
@@ -102,7 +104,7 @@ testRealdata1 = convertion
             where
               expected (n,h) = take n (repeat (h,h,h,h))
               mkRet = map (\(a,b,c,d) -> (length a, length b, length c, length d))
-              image = "/home/smly/gitws/sys35tools/dist/build/aldtool/vsp/CG_0001.VSP"
+              image = "/home/smly/gitws/sys35tools/bag/CG_0001.VSP"
 
 testRealdata2 = convertion
     where
@@ -115,4 +117,4 @@ testRealdata2 = convertion
             where
               expected (n,h) = take n (repeat (h,h,h,h))
               mkRet = map (\(a,b,c,d) -> (length a, length b, length c, length d))
-              image = "/home/smly/gitws/sys35tools/dist/build/aldtool/vsp/CG_0697.VSP"
+              image = "/home/smly/gitws/sys35tools/bag/CG_0697.VSP"

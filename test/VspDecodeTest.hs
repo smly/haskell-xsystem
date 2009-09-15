@@ -1,6 +1,6 @@
-module Main (main) where
+module VspDecodeTest (tests) where
+
 import System35.File.Vsp
---import VspDecodeRealdata
 import Test.Framework (defaultMain, testGroup)
 import Test.Framework.Providers.HUnit (testCase)
 import Test.HUnit
@@ -26,10 +26,9 @@ tests = [ {- testGroup for tokenize -}
           , testCase "test for eval blocks (16x400)" testEvalData0
 --          , testCase "test for eval blocks (24x400)" testEvalData1 -- check XOR
           ]
+        ]
         {- download toshin2, extract ald archive,
            and convert vsp image CG_0001.VSP -}
---        , testToshin
-        ]
 
 type ImageSize = (Width, Height)
 type Width = Int

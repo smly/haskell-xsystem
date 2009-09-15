@@ -17,7 +17,7 @@ executable test
   hs-source-dirs: test, .
   other-modules: System35.File.Ald,
                  System35.File.Vsp
-  main-is:       VspDecodeTest.hs
+  main-is:       Main.hs
   if flag(test)
     Build-Depends:
         HUnit >= 1.2.2, test-framework-hunit >= 0.2.4,
